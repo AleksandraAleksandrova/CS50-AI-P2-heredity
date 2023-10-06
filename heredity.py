@@ -142,39 +142,31 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     joint_prob = 1
     for person in people:
         person_prob = 1
+        if person in two_genes:
+            person_gene = 2
+        elif person in one_gene:
+            person_gene = 1
+        else:
+            person_gene = 0
+
         if people[person]["mother"] == None:
-            if person in one_gene:
-                person_prob *= PROBS["gene"][1]
-            elif person in two_genes:
-                person_prob *= PROBS["gene"][2]
-            else:
-                person_prob *= PROBS["gene"][0]
+            person_prob *= PROBS["gene"][person_gene]
         else:
             mother_pass = inheritance(people[person]['mother'], one_gene, two_genes)
             father_pass = inheritance(people[person]['father'], one_gene, two_genes)
 
-            if person in two_genes:
+            if person_gene == 2:  #if person in two_genes:
                 person_prob *= mother_pass * father_pass
-            elif person in one_gene:
+            elif person_gene == 1: #person in one_gene:
                 person_prob *= (1 - mother_pass) * father_pass + mother_pass * (1 - father_pass)
             else:
                 person_prob *= (1 - mother_pass) * (1 - father_pass)
 
         if person in have_trait:
-            if person in one_gene:
-                person_prob *= PROBS["trait"][1][True]
-            elif person in two_genes:
-                person_prob *= PROBS["trait"][2][True]
-            else:
-                person_prob *= PROBS["trait"][0][True]
+            person_prob *= PROBS["trait"][person_gene][True]
         else:
-            if person in one_gene:
-                person_prob *= PROBS["trait"][1][False]
-            elif person in two_genes:
-                person_prob *= PROBS["trait"][2][False]
-            else:
-                person_prob *= PROBS["trait"][0][False]
-        
+            person_prob *= PROBS["trait"][person_gene][False]
+      
         joint_prob *= person_prob
     return joint_prob
 
